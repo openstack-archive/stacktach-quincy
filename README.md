@@ -14,11 +14,11 @@ is no implementation. The default implementation is a dummy one for testing
 purposes. You can specify different implementations as you like. So, if
 you have another monitoring service that you would like to expose with a
 StackTach.v3 interface, you can adopt Quincy. However, if you want to work with
-StackTach.v3, there is a (quince)[https://github.com/StackTach/quince] driver 
+StackTach.v3, there is a [quince](https://github.com/StackTach/quince) driver 
 that handles that for you.
 
 Later in this document we will show you how to configure Quincy to use 
 the Quince drivers.
 
-The (klugman)[https://github.com/StackTach/klugman] library is both a cmdline 
+The [klugman](https://github.com/StackTach/klugman) library is both a cmdline 
 tool for accessing `quincy` and a python library for programmatically accessing it. 
