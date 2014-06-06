@@ -32,9 +32,9 @@ class Schema(object):
     def _v(self):
         return "/v%d" % self.version
 
-    def __init__(self, version, api):
+    def __init__(self, version, api, impl):
         self.api = api
-        self.impl = Impl()
+        self.impl = impl
         self.event_collection = EventCollection(impl)
         self.event_item = EventItem(impl)
         self.version = version
