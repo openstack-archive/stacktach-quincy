@@ -22,3 +22,9 @@ the Quince drivers.
 
 The [klugman](https://github.com/StackTach/klugman) library is both a cmdline 
 tool for accessing `quincy` and a python library for programmatically accessing it. 
+
+api
+===
+
+    .../v1/
+    .../v1/events/
