@@ -32,7 +32,7 @@ def _load_implementations(impl_map, versions, config):
         impl_map[version] = klass()
 
 
-def _initialize(self, enabled_versions, implementation_map):
+def _initialize(enabled_versions, implementation_map):
     # The de facto set of supported versions.
     versions = {1: v1_api.Schema,
                 2: v2_api.Schema}
@@ -40,13 +40,13 @@ def _initialize(self, enabled_versions, implementation_map):
     api = falcon.API()
 
     routes = []
-    for version in enabled_version:
+    for version in enabled_versions:
         klass = versions[version]
         impl = implementation_map.get(version)
         if not impl:
             raise NotImplemented("No implementation available for Quincy"
                                  " version %d" % version)
-        routes.append(klass(api, impl))
+        routes.append(klass(version, api, impl))
 
     # TODO(sandy): We need to create the /v1
     #                                    ...
@@ -63,8 +63,8 @@ if __name__ == '__main__':
 
     # The default implementation is internal and works with
     # a fake/static set of data.
-    local_config = {'v1_impl': 'v1_impl.Impl',
-                    'v2_impl': 'v2_impl.Impl'}
+    local_config = {'v1_impl': 'v1_impl:Impl',
+                    'v2_impl': 'v2_impl:Impl'}
 
     impl_map = {}
     _load_implementations(impl_map, enabled_versions, local_config)
