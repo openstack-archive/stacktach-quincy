@@ -21,7 +21,8 @@ import common
 class EventCollection(common.FalconBase):
     def on_get(self, req, resp):
         events = self.impl.get_events(resp)
-        resp.body = json.dumps(event)
+        dicts = [event.to_dict() for event in events]
+        resp.body = json.dumps(dicts)
 
 
 class EventItem(common.FalconBase):

@@ -24,6 +24,12 @@ class Event(object):
         self.request_id = request_id
         self.message_id = str(uuid.uuid4())
 
+    def to_dict(self):
+        return {"when": str(self.when),
+                "name": self.name,
+                "request_id": self.request_id,
+                "message_id": self.message_id}
+
 
 class Impl(object):
     def get_events(self, resp):

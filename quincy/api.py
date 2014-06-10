@@ -52,9 +52,10 @@ def _initialize(enabled_versions, implementation_map):
     #                                    ...
     #                                    /vN
     # resources here too.
+    return api
 
 
-if __name__ == '__main__':
+if True: # __name__ == '__main__':
     # There may have been prior versions
     # but they could be deprecated and dropped.
     # Only the versions specified here define
@@ -74,4 +75,5 @@ if __name__ == '__main__':
     # config = ...
     # _load_implementations(impl_map, enabled_versions, config)
 
-    _initialize(enabled_versions, impl_map)
+    api = _initialize(enabled_versions, impl_map)
+
