@@ -36,9 +36,10 @@ class Schema(object):
     def __init__(self, version, api, impl):
         self.api = api
         self.impl = impl
+        self.version = version
+
         self.event_collection = EventCollection(impl)
         self.event_item = EventItem(impl)
-        self.version = version
 
         self.api.add_route('%s/events' % self._v(),  self.event_collection)
         self.api.add_route('%s/events/{event_id}' % self._v(), self.event_item)

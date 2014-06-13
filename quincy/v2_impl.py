@@ -13,8 +13,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+import uuid
+
 import v1_impl
 
 
+class Archive(object):
+    def __init__(self, aid, filename):
+        self.aid = aid
+        self.filename = filename
+
+    def to_dict(self):
+        return {"id": str(self.aid),
+                "filename": self.filename}
+
+
 class Impl(v1_impl.Impl):
-    pass
+    def get_archives(self, resp):
+        filename_template = "events_%Y_%m_%d_%X_%f.dat"
+        now = datetime.datetime.utcnow()
+        ret = []
+        for _ in range(4):
+            ret.append(Archive(str(uuid.uuid4()),
+                               now.strftime(filename_template)))
+            now += datetime.timedelta(hours = 1)
+        return ret

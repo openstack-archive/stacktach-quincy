@@ -35,5 +35,5 @@ class Impl(object):
     def get_events(self, resp):
         rid = str(uuid.uuid4())
         return [Event(rid, "scheduler.run_instance.start"),
-                Event(rid, "scheduler.run_instanace.scheduled"),
+                Event(rid, "scheduler.run_instance.scheduled"),
                 Event(rid, "scheduler.run_instance.end")]

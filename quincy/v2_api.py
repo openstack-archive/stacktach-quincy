@@ -13,8 +13,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+
+import common
 import v1_api
 
 
+class ArchiveCollection(common.FalconBase):
+    def on_get(self, req, resp):
+        archives = self.impl.get_archives(resp)
+        dicts = [archive.to_dict() for archive in archives]
+        resp.body = json.dumps(dicts)
+
+
+class ArchiveItem(common.FalconBase):
+    def on_get(self, req, resp):
+        return "{}"
+
+
 class Schema(v1_api.Schema):
-    pass
+    def __init__(self, version, api, impl):
+        super(Schema, self).__init__(version, api, impl)
+        self.archive_collection = ArchiveCollection(impl)
+        self.archive_item = ArchiveItem(impl)
+
+        self.api.add_route('%s/archives' % self._v(),  self.archive_collection)
+        self.api.add_route('%s/archives/{archive_id}' % self._v(),
+                           self.archive_item)

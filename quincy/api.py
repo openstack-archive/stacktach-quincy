@@ -16,7 +16,6 @@
 import falcon
 import simport
 
-
 import v1_api
 import v2_api
 
@@ -55,25 +54,23 @@ def _initialize(enabled_versions, implementation_map):
     return api
 
 
-if True: # __name__ == '__main__':
-    # There may have been prior versions
-    # but they could be deprecated and dropped.
-    # Only the versions specified here define
-    # the currently supported StackTach.v3 API.
-    enabled_versions = [1, 2]
+# There may have been prior versions
+# but they could be deprecated and dropped.
+# Only the versions specified here define
+# the currently supported StackTach.v3 API.
+enabled_versions = [1, 2]
 
-    # The default implementation is internal and works with
-    # a fake/static set of data.
-    local_config = {'v1_impl': 'v1_impl:Impl',
-                    'v2_impl': 'v2_impl:Impl'}
+# The default implementation is internal and works with
+# a fake/static set of data.
+local_config = {'v1_impl': 'v1_impl:Impl',
+                'v2_impl': 'v2_impl:Impl'}
 
-    impl_map = {}
-    _load_implementations(impl_map, enabled_versions, local_config)
+impl_map = {}
+_load_implementations(impl_map, enabled_versions, local_config)
 
-    # TODO(sandy): Overlay the impl_map with the implementations
-    # specified in the config file.
-    # config = ...
-    # _load_implementations(impl_map, enabled_versions, config)
+# TODO(sandy): Overlay the impl_map with the implementations
+# specified in the config file.
+# config = ...
+# _load_implementations(impl_map, enabled_versions, config)
 
-    api = _initialize(enabled_versions, impl_map)
-
+api = _initialize(enabled_versions, impl_map)
