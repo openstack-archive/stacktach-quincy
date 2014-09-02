@@ -17,23 +17,23 @@ import datetime
 import uuid
 
 
-class Event(object):
-    def __init__(self, request_id, name):
-        self.when = datetime.datetime.utcnow()
-        self.name = name
-        self.request_id = request_id
-        self.message_id = str(uuid.uuid4())
+class Stream(object):
+    def __init__(self, stream_id, trigger_name, state):
+        self.last_updated = datetime.datetime.utcnow()
+        self.stream_id = stream_id
+        self.trigger_name = trigger_name
+        self.state = state
 
     def to_dict(self):
-        return {"when": str(self.when),
-                "name": self.name,
-                "request_id": self.request_id,
-                "message_id": self.message_id}
+        return {"last_updated": str(self.last_updated),
+                "stream_id": self.stream_id,
+                "trigger_name": self.trigger_name,
+                "state": self.state}
 
 
 class Impl(object):
-    def get_events(self, resp):
-        rid = str(uuid.uuid4())
-        return [Event(rid, "scheduler.run_instance.start"),
-                Event(rid, "scheduler.run_instance.scheduled"),
-                Event(rid, "scheduler.run_instance.end")]
+    def get_stream(self, resp):
+        sid = str(uuid.uuid4())
+        return [Stream(sid, "EOD-Exists", "Collecting")
+                Stream(sid, "EOD-Exists", "Error")
+                Stream(sid, "Request-ID", "Ready")]

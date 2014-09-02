@@ -18,14 +18,30 @@ import json
 import common
 
 
-class EventCollection(common.FalconBase):
+class StreamCollection(common.FalconBase):
+    # HTTP Operations on a stream
+    # GET - list stream with qualifiers
+    # DELETE - mark stream for deletion
+    # POST - move stream to READY or reset error count
+
+    # GET Qualifiers:
+    # older_than
+    # younger_than
+    # state
+    # trigger_name
+    # id
+    # distinquishing_traits - find stream by dtrait values.
+    #
+    # Actions on a Stream:
+    # details - get full details on stream (including distriquishing traits)
+    # events - get the events collected for this stream.
     def on_get(self, req, resp):
-        events = self.impl.get_events(resp)
-        dicts = [event.to_dict() for event in events]
+        streams = self.impl.get_streams(resp)
+        dicts = [stream.to_dict() for stream in streams]
         resp.body = json.dumps(dicts)
 
 
-class EventItem(common.FalconBase):
+class StreamItem(common.FalconBase):
     pass
 
 
@@ -38,8 +54,10 @@ class Schema(object):
         self.impl = impl
         self.version = version
 
-        self.event_collection = EventCollection(impl)
-        self.event_item = EventItem(impl)
+        self.stream_collection = StreamCollection(impl)
+        self.stream_item = StreamItem(impl)
 
-        self.api.add_route('%s/events' % self._v(),  self.event_collection)
-        self.api.add_route('%s/events/{event_id}' % self._v(), self.event_item)
+        self.api.add_route('%s/streams' % self._v(),
+                           self.stream_collection)
+        self.api.add_route('%s/streams/{stream_id}' % self._v(),
+                           self.stream_item)
