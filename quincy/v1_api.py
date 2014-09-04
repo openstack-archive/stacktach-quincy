@@ -15,6 +15,8 @@
 
 import json
 
+from dateutil import parser
+
 import common
 
 
@@ -29,20 +31,45 @@ class StreamCollection(common.FalconBase):
     # younger_than
     # state
     # trigger_name
-    # id
     # distinquishing_traits - find stream by dtrait values.
     #
     # Actions on a Stream:
-    # details - get full details on stream (including distriquishing traits)
-    # events - get the events collected for this stream.
+    # details - get full details on stream (including events &
+    #                                       distriquishing traits)
+
     def on_get(self, req, resp):
-        streams = self.impl.get_streams(resp)
-        dicts = [stream.to_dict() for stream in streams]
-        resp.body = json.dumps(dicts)
+        older_than = req.get_param('older_than')
+        younger_than = req.get_param('younger_than')
+        state = req.get_param('state')
+        trigger = req.get_param('trigger_name')
+        traits = req.get_param('distinquishing_traits')
+
+        if older_than:
+            older_than = parser.parse(older_than)
+
+        if younger_than:
+            younger_than = parser.parse(younger_than)
+
+        streams = self.impl.get_streams(older_than=older_than,
+                                        younger_than=younger_than,
+                                        state=state,
+                                        trigger_name=trigger,
+                                        distinquishing_traits=traits)
+        resp.body = json.dumps(streams)
 
 
 class StreamItem(common.FalconBase):
-    pass
+    def on_get(self, req, resp, stream_id, action=None):
+        details = action == 'details'
+        stream = self.impl.get_stream(stream_id, details)
+        resp.body = json.dumps(stream.to_dict())
+
+    def on_delete(self, req, resp, stream_id):
+        self.impl.delete_stream(stream_id)
+
+    def on_put(self, req, resp, stream_id, action=None):
+        reset = action == 'reset'
+        self.impl.reset_stream(stream_id)
 
 
 class Schema(object):
@@ -60,4 +87,6 @@ class Schema(object):
         self.api.add_route('%s/streams' % self._v(),
                            self.stream_collection)
         self.api.add_route('%s/streams/{stream_id}' % self._v(),
+                           self.stream_item)
+        self.api.add_route('%s/streams/{stream_id}/{action}' % self._v(),
                            self.stream_item)

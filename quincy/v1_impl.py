@@ -23,17 +23,40 @@ class Stream(object):
         self.stream_id = stream_id
         self.trigger_name = trigger_name
         self.state = state
+        self.distinquishing_traits = []
 
     def to_dict(self):
         return {"last_updated": str(self.last_updated),
                 "stream_id": self.stream_id,
                 "trigger_name": self.trigger_name,
-                "state": self.state}
+                "state": self.state,
+                "distinquishing_traits": self.distinquishing_traits}
 
 
 class Impl(object):
-    def get_stream(self, resp):
-        sid = str(uuid.uuid4())
-        return [Stream(sid, "EOD-Exists", "Collecting")
-                Stream(sid, "EOD-Exists", "Error")
-                Stream(sid, "Request-ID", "Ready")]
+    def __init__(self, config, scratchpad):
+        self.config = config
+        self.scratchpad = scratchpad
+
+    def get_streams(self, **kwargs):
+        """kwargs may be:
+            older_than
+            younger_than
+            state
+            trigger_name
+            distinquishing_traits
+        """
+        x = [Stream(str(uuid.uuid4()), "EOD-Exists", "Collecting"),
+             Stream(str(uuid.uuid4()), "EOD-Exists", "Error"),
+             Stream(str(uuid.uuid4()), "Request-ID", "Ready")]
+
+        return [stream.to_dict() for stream in x]
+
+    def get_stream(self, stream_id, details):
+        return Stream(str(uuid.uuid4()), "Request-ID", "Ready")
+
+    def delete_stream(self, stream_id):
+        pass
+
+    def reset_stream(self, stream_id):
+        pass

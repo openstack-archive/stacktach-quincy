@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import ConfigParser
+import traceback
+
+
 import falcon
 import simport
 
@@ -24,11 +28,11 @@ class NotImplemented(Exception):
     pass
 
 
-def _load_implementations(impl_map, versions, config):
+def _load_implementations(impl_map, versions, config, scratchpad):
     for version in versions:
-        target = config.get('v%d_impl' % version)
+        target = config.get('global', 'v%d_impl' % version)
         klass = simport.load(target)
-        impl_map[version] = klass()
+        impl_map[version] = klass(config, scratchpad)
 
 
 def _initialize(enabled_versions, implementation_map):
@@ -45,32 +49,58 @@ def _initialize(enabled_versions, implementation_map):
         if not impl:
             raise NotImplemented("No implementation available for Quincy"
                                  " version %d" % version)
+        print "Version %d using %s" % (version, impl)
         routes.append(klass(version, api, impl))
 
-    # TODO(sandy): We need to create the /v1
-    #                                    ...
-    #                                    /vN
+    # TODO(sandy): We need to create the top-level /v1, ... /vN
     # resources here too.
     return api
 
 
-# There may have been prior versions
-# but they could be deprecated and dropped.
-# Only the versions specified here define
-# the currently supported StackTach.v3 API.
-enabled_versions = [1, 2]
+def _get_api(config_location=None):
+    print "Using config_location=%s (None means default impl)" % config_location
 
-# The default implementation is internal and works with
-# a fake/static set of data.
-local_config = {'v1_impl': 'v1_impl:Impl',
-                'v2_impl': 'v2_impl:Impl'}
+    # The default implementation is internal and works with
+    # a fake/static set of data.
+    local_config = ConfigParser.ConfigParser()
+    local_config.add_section('global')
+    local_config.set('global', 'v1_impl', 'v1_impl:Impl')
+    local_config.set('global', 'v2_impl', 'v2_impl:Impl')
 
-impl_map = {}
-_load_implementations(impl_map, enabled_versions, local_config)
+    # There may have been prior versions
+    # but they could be deprecated and dropped.
+    # Only the versions specified here define
+    # the currently supported StackTach.v3 API.
+    enabled_versions = [1, 2]
 
-# TODO(sandy): Overlay the impl_map with the implementations
-# specified in the config file.
-# config = ...
-# _load_implementations(impl_map, enabled_versions, config)
+    if config_location:
+        config = ConfigParser.ConfigParser()
+        config.read(config_location)
+        enabled_versions = [int(x) for x in
+                                config.get('global', 'enabled_versions')
+                                                            .split(',')]
 
-api = _initialize(enabled_versions, impl_map)
+    # Rather than every implementation duplicate resources, the
+    # scratchpad is a shared storage area all the implementations
+    # can use to share things (like pipeline drivers, etc).
+    scratchpad = {}
+    impl_map = {}
+    _load_implementations(impl_map, enabled_versions, local_config,
+        scratchpad)
+
+    if config_location:
+        # Overlay the impl_map with the implementations
+        # specified in the config file.
+        _load_implementations(impl_map, enabled_versions, config,
+                              scratchpad)
+
+
+    return _initialize(enabled_versions, impl_map)
+
+
+def get_api(config_location=None):
+    try:
+        return _get_api(config_location)
+    except Exception as e:
+        print "Error getting API:", traceback.format_exc()
+    return None

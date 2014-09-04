@@ -1,2 +1,3 @@
+python-dateutil
 falcon
 simport >= 0.0.dev0
