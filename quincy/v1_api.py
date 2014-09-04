@@ -60,9 +60,9 @@ class StreamCollection(common.FalconBase):
 
 class StreamItem(common.FalconBase):
     def on_get(self, req, resp, stream_id, action=None):
-        details = action == 'details'
-        stream = self.impl.get_stream(stream_id, details)
-        resp.body = json.dumps(stream.to_dict())
+        details = req.get_param('details')
+        streams = self.impl.get_stream(stream_id, details)
+        resp.body = json.dumps(streams)
 
     def on_delete(self, req, resp, stream_id):
         self.impl.delete_stream(stream_id)
@@ -87,6 +87,4 @@ class Schema(object):
         self.api.add_route('%s/streams' % self._v(),
                            self.stream_collection)
         self.api.add_route('%s/streams/{stream_id}' % self._v(),
-                           self.stream_item)
-        self.api.add_route('%s/streams/{stream_id}/{action}' % self._v(),
                            self.stream_item)
