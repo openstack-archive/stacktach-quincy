@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
+from quincy import jsonutil
 
 from dateutil import parser
 
@@ -31,7 +31,7 @@ class StreamCollection(common.FalconBase):
     # younger_than
     # state
     # trigger_name
-    # distinquishing_traits - find stream by dtrait values.
+    # distinguishing_traits - find stream by dtrait values.
     #
     # Actions on a Stream:
     # details - get full details on stream (including events &
@@ -42,7 +42,7 @@ class StreamCollection(common.FalconBase):
         younger_than = req.get_param('younger_than')
         state = req.get_param('state')
         trigger = req.get_param('trigger_name')
-        traits = req.get_param('distinquishing_traits')
+        traits = req.get_param('distinguishing_traits')
 
         if older_than:
             older_than = parser.parse(older_than)
@@ -54,15 +54,15 @@ class StreamCollection(common.FalconBase):
                                         younger_than=younger_than,
                                         state=state,
                                         trigger_name=trigger,
-                                        distinquishing_traits=traits)
-        resp.body = json.dumps(streams)
+                                        distinguishing_traits=traits)
+        resp.body = jsonutil.dumps(streams)
 
 
 class StreamItem(common.FalconBase):
     def on_get(self, req, resp, stream_id, action=None):
         details = req.get_param('details')
         streams = self.impl.get_stream(stream_id, details)
-        resp.body = json.dumps(streams)
+        resp.body = jsonutil.dumps(streams)
 
     def on_delete(self, req, resp, stream_id):
         self.impl.delete_stream(stream_id)

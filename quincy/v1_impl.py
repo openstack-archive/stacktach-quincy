@@ -23,14 +23,14 @@ class Stream(object):
         self.stream_id = stream_id
         self.trigger_name = trigger_name
         self.state = state
-        self.distinquishing_traits = []
+        self.distinguishing_traits = []
 
     def to_dict(self):
         return {"last_updated": str(self.last_updated),
                 "stream_id": self.stream_id,
                 "trigger_name": self.trigger_name,
                 "state": self.state,
-                "distinquishing_traits": self.distinquishing_traits}
+                "distinguishing_traits": self.distinguishing_traits}
 
 
 class Impl(object):
@@ -44,7 +44,7 @@ class Impl(object):
             younger_than
             state
             trigger_name
-            distinquishing_traits
+            distinguishing_traits
         """
         x = [Stream(str(uuid.uuid4()), "EOD-Exists", "Collecting"),
              Stream(str(uuid.uuid4()), "EOD-Exists", "Error"),
