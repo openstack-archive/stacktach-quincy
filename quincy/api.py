@@ -64,8 +64,8 @@ def _get_api(config_location=None):
     # a fake/static set of data.
     local_config = ConfigParser.ConfigParser()
     local_config.add_section('global')
-    local_config.set('global', 'v1_impl', 'v1_impl:Impl')
-    local_config.set('global', 'v2_impl', 'v2_impl:Impl')
+    local_config.set('global', 'v1_impl', 'quincy.v1_impl:Impl')
+    local_config.set('global', 'v2_impl', 'quincy.v2_impl:Impl')
 
     # There may have been prior versions
     # but they could be deprecated and dropped.
