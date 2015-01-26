@@ -23,14 +23,34 @@ class Stream(object):
         self.stream_id = stream_id
         self.trigger_name = trigger_name
         self.state = state
-        self.distinguishing_traits = []
 
     def to_dict(self):
-        return {"last_updated": str(self.last_updated),
-                "stream_id": self.stream_id,
-                "trigger_name": self.trigger_name,
-                "state": self.state,
-                "distinguishing_traits": self.distinguishing_traits}
+        return {
+            "distinguishing_traits": {
+                "instance_id": str(uuid.uuid4()),
+                "timestamp": {
+                    "__type__": "timex.TimeRange",
+                    "begin": "2015-01-26T00:00:00",
+                    "end": "2015-01-27T00:00:00"
+                }
+            },
+            "expire_timestamp": {
+                "__type__": "datetime",
+                "datetime": "2015-01-26T16:16:40.486940"
+            },
+            "fire_timestamp": None,
+            "first_event": {
+                "__type__": "datetime",
+                "datetime": "2015-01-26T15:12:09.624219"
+            },
+            "id": self.stream_id,
+            "last_event": {
+                "__type__": "datetime",
+                "datetime": str(self.last_updated)
+            },
+            "name": self.trigger_name,
+            "state": self.state
+        }
 
 
 class Impl(object):
@@ -44,11 +64,11 @@ class Impl(object):
             younger_than
             state
             trigger_name
-            distinguishing_traits
+            distinquishing_traits
         """
-        x = [Stream(str(uuid.uuid4()), "EOD-Exists", "Collecting"),
-             Stream(str(uuid.uuid4()), "EOD-Exists", "Error"),
-             Stream(str(uuid.uuid4()), "Request-ID", "Ready")]
+        x = [Stream(1000, "EOD-Exists", "Collecting"),
+             Stream(1001, "EOD-Exists", "Error"),
+             Stream(1002, "Request-ID", "Ready")]
 
         return [stream.to_dict() for stream in x]
 
