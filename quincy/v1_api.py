@@ -72,6 +72,29 @@ class StreamItem(common.FalconBase):
         self.impl.reset_stream(stream_id)
 
 
+class StreamCount(common.FalconBase):
+    def on_get(self, req, resp):
+        older_than = req.get_param('older_than')
+        younger_than = req.get_param('younger_than')
+        state = req.get_param('state')
+        trigger = req.get_param('trigger_name')
+        traits = req.get_param('distinguishing_traits')
+
+        if older_than:
+            older_than = parser.parse(older_than)
+
+        if younger_than:
+            younger_than = parser.parse(younger_than)
+
+        streams = self.impl.get_streams(count=True,
+                                        older_than=older_than,
+                                        younger_than=younger_than,
+                                        state=state,
+                                        trigger_name=trigger,
+                                        distinguishing_traits=traits)
+        resp.body = jsonutil.dumps(streams)
+
+
 class Schema(object):
     def _v(self):
         return "/v%d" % self.version
@@ -83,8 +106,11 @@ class Schema(object):
 
         self.stream_collection = StreamCollection(impl)
         self.stream_item = StreamItem(impl)
+        self.stream_count = StreamCount(impl)
 
         self.api.add_route('%s/streams' % self._v(),
                            self.stream_collection)
         self.api.add_route('%s/streams/{stream_id}' % self._v(),
                            self.stream_item)
+        self.api.add_route('%s/streams/count' % self._v(),
+                           self.stream_count)

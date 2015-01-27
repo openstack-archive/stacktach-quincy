@@ -60,12 +60,16 @@ class Impl(object):
 
     def get_streams(self, **kwargs):
         """kwargs may be:
+            count: True/False
             older_than
             younger_than
             state
             trigger_name
             distinquishing_traits
         """
+        if 'count' in kwargs:
+            return [{"count": 3}]
+
         x = [Stream(1000, "EOD-Exists", "Collecting"),
              Stream(1001, "EOD-Exists", "Error"),
              Stream(1002, "Request-ID", "Ready")]
