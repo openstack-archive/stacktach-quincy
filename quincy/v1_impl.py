@@ -72,7 +72,8 @@ class Stream(object):
                 "datetime": str(self.last)
             },
             "name": self.trigger_name,
-            "state": self.state
+            "state": self.state,
+            "_mark": "%x" % self.stream_id,
         }
 
 

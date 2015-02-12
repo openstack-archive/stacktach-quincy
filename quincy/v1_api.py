@@ -19,6 +19,9 @@ from dateutil import parser
 
 import common
 
+#set this to something reasonable.
+DEFAULT_LIMIT = 200
+
 
 def _convert_traits(dtraits):
     if dtraits is None:
@@ -37,6 +40,16 @@ def _get_streams(impl, req, resp, count=False):
     trigger = req.get_param('trigger_name')
     dtraits = req.get_param('distinguishing_traits')
     traits = _convert_traits(dtraits)
+    mark = req.get_params('mark')
+    limit = req.get_params('limit')
+
+    if limit:
+        try:
+            limit = int(limit)
+        except (ValueError, TypeError):
+            limit = DEFAULT_LIMIT
+    else:
+        limit = DEFAULT_LIMIT
 
     if older_than:
         older_than = parser.parse(older_than)
@@ -49,7 +62,8 @@ def _get_streams(impl, req, resp, count=False):
                             younger_than=younger_than,
                             state=state,
                             trigger_name=trigger,
-                            distinguishing_traits=traits)
+                            distinguishing_traits=traits,
+                            mark=mark, limit=limit)
 
 
 def _get_stream(impl, req, resp, stream_id):
