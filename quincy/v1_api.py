@@ -40,8 +40,8 @@ def _get_streams(impl, req, resp, count=False):
     trigger = req.get_param('trigger_name')
     dtraits = req.get_param('distinguishing_traits')
     traits = _convert_traits(dtraits)
-    mark = req.get_params('mark')
-    limit = req.get_params('limit')
+    mark = req.get_param('mark')
+    limit = req.get_param('limit')
 
     if limit:
         try:
