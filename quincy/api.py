@@ -71,7 +71,7 @@ def _get_api(config_location=None):
     # but they could be deprecated and dropped.
     # Only the versions specified here define
     # the currently supported StackTach.v3 API.
-    enabled_versions = [1, 2]
+    enabled_versions = [1]  # [1, 2]
 
     if config_location:
         config = ConfigParser.ConfigParser()

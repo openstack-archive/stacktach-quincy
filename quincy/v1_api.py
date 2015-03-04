@@ -33,7 +33,7 @@ def _convert_traits(dtraits):
     return dict(x for x in tuples)
 
 
-def _get_streams(impl, req, resp, count=False):
+def _find_streams(impl, req, resp, count=False):
     older_than = req.get_param('older_than')
     younger_than = req.get_param('younger_than')
     state = req.get_param('state')
@@ -57,7 +57,7 @@ def _get_streams(impl, req, resp, count=False):
     if younger_than:
         younger_than = parser.parse(younger_than)
 
-    return impl.get_streams(count=count,
+    return impl.find_streams(count=count,
                             older_than=older_than,
                             younger_than=younger_than,
                             state=state,
@@ -88,7 +88,7 @@ class StreamCollection(common.FalconBase):
     # details - get full details on stream (including events &
     #                                       distriquishing traits)
     def on_get(self, req, resp):
-        streams = _get_streams(self.impl, req, resp)
+        streams = _find_streams(self.impl, req, resp)
         resp.body = jsonutil.dumps(streams)
 
 
@@ -98,7 +98,7 @@ class StreamItem(common.FalconBase):
         stream_id = stream_id.lower()
         count = stream_id == 'count'
         if count:
-            streams = _get_streams(self.impl, req, resp, count=count)
+            streams = _find_streams(self.impl, req, resp, count=count)
         else:
             streams = _get_stream(self.impl, req, resp, stream_id)
         resp.body = jsonutil.dumps(streams)
@@ -108,6 +108,59 @@ class StreamItem(common.FalconBase):
 
     def on_put(self, req, resp, stream_id):
         self.impl.reset_stream(stream_id)
+
+
+class EventCollection(common.FalconBase):
+    # Retrieve events, independent of stream.
+    # GET - list stream with qualifiers
+
+    # Qualifiers:
+    # datetime are ISO-8601 format, UTC
+    # from_datetime - events with timestamp > from_datetime
+    #                 default: now - 1hr
+    # to_datetime - events with timestamp < to_datetime
+    #                 default: now
+    # event_name - events of event type
+    # traits - find traits with specific traits
+    # mark - marker for paged results
+    # limit - max number of events to return (default: 200)
+    def on_get(self, req, resp):
+        from_datetime = req.get_param('from_datetime')
+        to_datetime = req.get_param('to_datetime')
+        event_name = req.get_param('event_name')
+        traits = req.get_param('traits')
+        traits = _convert_traits(traits)
+        mark = req.get_param('mark')
+        limit = req.get_param('limit')
+
+        if limit:
+            try:
+                limit = int(limit)
+            except (ValueError, TypeError):
+                limit = DEFAULT_LIMIT
+        else:
+            limit = DEFAULT_LIMIT
+
+        if from_datetime:
+            from_datetime = parser.parse(from_datetime)
+
+        if to_datetime:
+            to_datetime = parser.parse(to_datetime)
+
+        events = self.impl.find_events(from_datetime=from_datetime,
+                                       to_datetime=to_datetime,
+                                       event_name=event_name,
+                                       traits=traits,
+                                       mark=mark, limit=limit)
+
+        resp.body = jsonutil.dumps(events)
+
+
+class EventItem(common.FalconBase):
+    def on_get(self, req, resp, message_id):
+        message_id = message_id.lower()
+        event = self.impl.get_event(message_id)
+        resp.body = jsonutil.dumps([event])
 
 
 class Schema(object):
@@ -122,9 +175,16 @@ class Schema(object):
         self.stream_collection = StreamCollection(impl)
         self.stream_item = StreamItem(impl)
 
+        self.event_collection = EventCollection(impl)
+        self.event_item = EventItem(impl)
+
         # Can't have a /streams/{item} route *and* a
         # /streams/foo route. Have to overload the StreamItem
         # handler.
         self.api.add_route('%s/streams/{stream_id}' % self._v(),
                            self.stream_item)
         self.api.add_route('%s/streams' % self._v(), self.stream_collection)
+
+        self.api.add_route('%s/events/{message_id}' % self._v(), self.event_item)
+        self.api.add_route('%s/events' % self._v(), self.event_collection)
+

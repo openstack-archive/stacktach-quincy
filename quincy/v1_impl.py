@@ -77,11 +77,54 @@ class Stream(object):
         }
 
 
+class Event(object):
+    def __init__(self, event_id, name, timestamp):
+        self.event_id = event_id
+        self.name = name
+        self.timestamp = timestamp
+
+    def to_dict(self):
+        trait_names = ["foo", "zoo", "zip", "zap", "blah", "bar"]
+        d = {}
+        for t in trait_names:
+            dtype = random.randrange(4)
+            if dtype == 0:
+                d[t] = random.randrange(1000, 2000)
+            elif dtype == 1:
+                d[t] = str(uuid.uuid4())
+            elif dtype == 2:
+                d[t] = {
+                    "__type__": "timex.TimeRange",
+                    "begin": str(datetime.datetime.utcnow()
+                        - datetime.timedelta(minutes=random.randrange(500))),
+                    "end": str(datetime.datetime.utcnow())
+                }
+            elif dtype == 3:
+                d[t] = {
+                    "__type__": "datetime",
+                    "datetime": str(datetime.datetime.utcnow()
+                           - datetime.timedelta(minutes=random.randrange(500)))
+                }
+
+        d.update({
+            "timestamp": {
+                "__type__": "datetime",
+                "datetime": str(self.timestamp)
+            },
+            "id": self.event_id,
+            "event_name": self.name,
+            "message_id": str(uuid.uuid4()),
+            "_mark": "%x" % self.event_id,
+        })
+        return d
+
+
 class Impl(object):
     def __init__(self, config, scratchpad):
         self.config = config
         self.scratchpad = scratchpad
         self.streams = None
+        self.events = None
 
     def _make_streams(self):
         if self.streams:
@@ -119,7 +162,25 @@ class Impl(object):
 
         return self.streams
 
-    def get_streams(self, **kwargs):
+    def _make_events(self):
+        if self.events:
+            return self.events
+
+        minutes_in_48_hrs = 60 * 48
+
+        event_names = ["thing.create", "thing.delete", "thing.modify",
+                       "thing.search", "thing.validate", "thing.archive"]
+
+        self.events = []
+        for event_id in range(100):
+            name = random.choice(event_names)
+            now = (datetime.datetime.utcnow() - datetime.timedelta(
+                        minutes=random.randrange(minutes_in_48_hrs)))
+            self.events.append(Event(event_id + 100, name, now))
+
+        return self.events
+
+    def find_streams(self, **kwargs):
         """kwargs may be:
             count: True/False
             older_than
@@ -142,3 +203,10 @@ class Impl(object):
 
     def reset_stream(self, stream_id):
         pass
+
+    def find_events(self, **kwargs):
+        events = self._make_events()
+        return [event.to_dict() for event in events]
+
+    def get_event(self, message_id):
+        return self._make_events()[0].to_dict()
