@@ -1,0 +1,8 @@
+Verified+2: Jenkins
+Code-Review+2: Monsyne Dragon <mdragon@rackspace.com>
+Workflow+1: Monsyne Dragon <mdragon@rackspace.com>
+Submitted-by: Jenkins
+Submitted-at: Mon, 16 Mar 2015 15:37:29 +0000
+Reviewed-on: https://review.openstack.org/161345
+Project: stackforge/stacktach-quincy
+Branch: refs/heads/master
