@@ -110,6 +110,40 @@ class StreamItem(common.FalconBase):
         self.impl.reset_stream(stream_id)
 
 
+def _find_events(impl, req, resp, count=False):
+    from_datetime = req.get_param('from_datetime')
+    to_datetime = req.get_param('to_datetime')
+    event_name = req.get_param('event_name')
+    traits = req.get_param('traits')
+    traits = _convert_traits(traits)
+    mark = req.get_param('mark')
+    limit = req.get_param('limit')
+
+    if limit:
+        try:
+            limit = int(limit)
+        except (ValueError, TypeError):
+            limit = DEFAULT_LIMIT
+    else:
+        limit = DEFAULT_LIMIT
+
+    if from_datetime:
+        from_datetime = parser.parse(from_datetime)
+
+    if to_datetime:
+        to_datetime = parser.parse(to_datetime)
+
+    return impl.find_events(from_datetime=from_datetime,
+                            to_datetime=to_datetime,
+                            event_name=event_name,
+                            traits=traits,
+                            mark=mark, limit=limit, count=count)
+
+
+def _get_event(impl, req, resp, message_id):
+    return impl.get_event(message_id)
+
+
 class EventCollection(common.FalconBase):
     # Retrieve events, independent of stream.
     # GET - list stream with qualifiers
@@ -125,42 +159,22 @@ class EventCollection(common.FalconBase):
     # mark - marker for paged results
     # limit - max number of events to return (default: 200)
     def on_get(self, req, resp):
-        from_datetime = req.get_param('from_datetime')
-        to_datetime = req.get_param('to_datetime')
-        event_name = req.get_param('event_name')
-        traits = req.get_param('traits')
-        traits = _convert_traits(traits)
-        mark = req.get_param('mark')
-        limit = req.get_param('limit')
-
-        if limit:
-            try:
-                limit = int(limit)
-            except (ValueError, TypeError):
-                limit = DEFAULT_LIMIT
-        else:
-            limit = DEFAULT_LIMIT
-
-        if from_datetime:
-            from_datetime = parser.parse(from_datetime)
-
-        if to_datetime:
-            to_datetime = parser.parse(to_datetime)
-
-        events = self.impl.find_events(from_datetime=from_datetime,
-                                       to_datetime=to_datetime,
-                                       event_name=event_name,
-                                       traits=traits,
-                                       mark=mark, limit=limit)
+        events = _find_events(self.impl, req, resp)
 
         resp.body = jsonutil.dumps(events)
 
 
 class EventItem(common.FalconBase):
     def on_get(self, req, resp, message_id):
+        # could be /events/123 or /events/count
         message_id = message_id.lower()
-        event = self.impl.get_event(message_id)
-        resp.body = jsonutil.dumps([event])
+        count = message_id == 'count'
+        if count:
+            events = _find_events(self.impl, req, resp, count=count)
+        else:
+            events = _get_event(self.impl, req, resp, message_id)
+
+        resp.body = jsonutil.dumps(events)
 
 
 class Schema(object):
