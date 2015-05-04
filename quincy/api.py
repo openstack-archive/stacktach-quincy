@@ -16,7 +16,6 @@
 import ConfigParser
 import traceback
 
-
 import falcon
 import simport
 
@@ -49,7 +48,7 @@ def _initialize(enabled_versions, implementation_map):
         if not impl:
             raise NotImplemented("No implementation available for Quincy"
                                  " version %d" % version)
-        print "Version %d using %s" % (version, impl)
+        print("Version %d using %s" % (version, impl))
         routes.append(klass(version, api, impl))
 
     # TODO(sandy): We need to create the top-level /v1, ... /vN
@@ -58,7 +57,8 @@ def _initialize(enabled_versions, implementation_map):
 
 
 def _get_api(config_location=None):
-    print "Using config_location=%s (None means default impl)" % config_location
+    print("Using config_location=%s (None means default impl)"
+          % config_location)
 
     # The default implementation is internal and works with
     # a fake/static set of data.
@@ -77,8 +77,8 @@ def _get_api(config_location=None):
         config = ConfigParser.ConfigParser()
         config.read(config_location)
         enabled_versions = [int(x) for x in
-                                config.get('global', 'enabled_versions')
-                                                            .split(',')]
+                            config.get('global',
+                                       'enabled_versions').split(',')]
 
     # Rather than every implementation duplicate resources, the
     # scratchpad is a shared storage area all the implementations
@@ -86,7 +86,7 @@ def _get_api(config_location=None):
     scratchpad = {}
     impl_map = {}
     _load_implementations(impl_map, enabled_versions, local_config,
-        scratchpad)
+                          scratchpad)
 
     if config_location:
         # Overlay the impl_map with the implementations
@@ -94,13 +94,12 @@ def _get_api(config_location=None):
         _load_implementations(impl_map, enabled_versions, config,
                               scratchpad)
 
-
     return _initialize(enabled_versions, impl_map)
 
 
 def get_api(config_location=None):
     try:
         return _get_api(config_location)
-    except Exception as e:
-        print "Error getting API:", traceback.format_exc()
+    except Exception:
+        print("Error getting API:", traceback.format_exc())
     return None

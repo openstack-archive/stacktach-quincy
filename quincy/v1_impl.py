@@ -95,15 +95,17 @@ class Event(object):
             elif dtype == 2:
                 d[t] = {
                     "__type__": "timex.TimeRange",
-                    "begin": str(datetime.datetime.utcnow()
-                        - datetime.timedelta(minutes=random.randrange(500))),
+                    "begin": str(
+                        datetime.datetime.utcnow() - datetime.timedelta(
+                            minutes=random.randrange(500))),
                     "end": str(datetime.datetime.utcnow())
                 }
             elif dtype == 3:
                 d[t] = {
                     "__type__": "datetime",
-                    "datetime": str(datetime.datetime.utcnow()
-                           - datetime.timedelta(minutes=random.randrange(500)))
+                    "datetime": str(
+                        datetime.datetime.utcnow() - datetime.timedelta(
+                            minutes=random.randrange(500)))
                 }
 
         d.update({
@@ -151,7 +153,7 @@ class Impl(object):
             expiry = None
             if state != 'completed':
                 finish = start + datetime.timedelta(
-                                        minutes=max_duration_minutes)
+                    minutes=max_duration_minutes)
                 if random.randrange(2) == 0:
                     expiry = finish
                 else:
@@ -175,13 +177,15 @@ class Impl(object):
         for event_id in range(100):
             name = random.choice(event_names)
             now = (datetime.datetime.utcnow() - datetime.timedelta(
-                        minutes=random.randrange(minutes_in_48_hrs)))
+                minutes=random.randrange(minutes_in_48_hrs)))
             self.events.append(Event(event_id + 100, name, now))
 
         return self.events
 
     def find_streams(self, **kwargs):
-        """kwargs may be:
+        """Find streams
+
+        kwargs may be:
             count: True/False
             older_than
             younger_than

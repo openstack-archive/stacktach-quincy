@@ -19,7 +19,7 @@ from dateutil import parser
 
 import common
 
-#set this to something reasonable.
+# set this to something reasonable.
 DEFAULT_LIMIT = 200
 
 
@@ -58,12 +58,12 @@ def _find_streams(impl, req, resp, count=False):
         younger_than = parser.parse(younger_than)
 
     return impl.find_streams(count=count,
-                            older_than=older_than,
-                            younger_than=younger_than,
-                            state=state,
-                            trigger_name=trigger,
-                            distinguishing_traits=traits,
-                            mark=mark, limit=limit)
+                             older_than=older_than,
+                             younger_than=younger_than,
+                             state=state,
+                             trigger_name=trigger,
+                             distinguishing_traits=traits,
+                             mark=mark, limit=limit)
 
 
 def _get_stream(impl, req, resp, stream_id):
@@ -86,7 +86,7 @@ class StreamCollection(common.FalconBase):
     #
     # Actions on a Stream:
     # details - get full details on stream (including events &
-    #                                       distriquishing traits)
+    # distinguishing traits)
     def on_get(self, req, resp):
         streams = _find_streams(self.impl, req, resp)
         resp.body = jsonutil.dumps(streams)
@@ -151,7 +151,7 @@ class EventCollection(common.FalconBase):
     # Qualifiers:
     # datetime are ISO-8601 format, UTC
     # from_datetime - events with timestamp > from_datetime
-    #                 default: now - 1hr
+    # default: now - 1hr
     # to_datetime - events with timestamp < to_datetime
     #                 default: now
     # event_name - events of event type
@@ -199,6 +199,6 @@ class Schema(object):
                            self.stream_item)
         self.api.add_route('%s/streams' % self._v(), self.stream_collection)
 
-        self.api.add_route('%s/events/{message_id}' % self._v(), self.event_item)
+        self.api.add_route('%s/events/{message_id}' % self._v(),
+                           self.event_item)
         self.api.add_route('%s/events' % self._v(), self.event_collection)
-

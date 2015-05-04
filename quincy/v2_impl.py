@@ -37,5 +37,5 @@ class Impl(v1_impl.Impl):
         for _ in range(4):
             ret.append(Archive(str(uuid.uuid4()),
                                now.strftime(filename_template)))
-            now += datetime.timedelta(hours = 1)
+            now += datetime.timedelta(hours=1)
         return ret
