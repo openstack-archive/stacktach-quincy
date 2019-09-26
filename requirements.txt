@@ -1,5 +1,0 @@
-hacking>=0.10.0,<0.11
-python-dateutil
-falcon
-simport >= 0.0.dev0
-timex
